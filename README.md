@@ -106,5 +106,5 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 - All contributors who have helped enhance this safety application
 
 ## Contact
-Project Link: https://github.com/Srishyl/Suraksha-The-Safety-Guardian
+Project Link: [https://github.com/Sakshi146-eng/Suraksha](https://github.com/Sakshi146-eng/Suraksha)
 
