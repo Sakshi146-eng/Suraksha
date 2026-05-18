@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { FaTimes } from 'react-icons/fa';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const Modal = ({ isOpen, onClose, children, title, icon: Icon, iconColor = 'text-purple-600', iconBgColor = 'bg-white' }) => {
+const Modal = ({ isOpen, onClose, children, title, icon: Icon, iconColor = 'text-[#DB2956]', iconBgColor = 'bg-[#FFE4EC]', borderClass = 'border-t-4 border-[#DB2956]' }) => {
 
     // Close on escape key
     useEffect(() => {
@@ -22,41 +22,35 @@ const Modal = ({ isOpen, onClose, children, title, icon: Icon, iconColor = 'text
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                        className="absolute inset-0 bg-[#121212]/50 backdrop-blur-xs"
                     />
                     <motion.div
-                        initial={{ scale: 0.9, opacity: 0, y: 20 }}
+                        initial={{ scale: 0.95, opacity: 0, y: 10 }}
                         animate={{ scale: 1, opacity: 1, y: 0 }}
-                        exit={{ scale: 0.9, opacity: 0, y: 20 }}
-                        className="bg-black/40 backdrop-blur-xl border border-white/20 rounded-3xl w-full max-w-md p-8 relative max-h-[90vh] overflow-y-auto z-10 shadow-2xl"
+                        exit={{ scale: 0.95, opacity: 0, y: 10 }}
+                        transition={{ type: 'spring', damping: 25, stiffness: 350 }}
+                        className={`bg-white rounded-[20px] w-full max-w-md p-6 sm:p-8 relative max-h-[90vh] overflow-y-auto z-10 shadow-[0_4px_32px_rgba(18,18,18,0.08)] ${borderClass}`}
                     >
                         <button
                             onClick={onClose}
-                            className="absolute top-4 right-4 text-white/70 hover:text-white transition-colors"
+                            className="absolute top-5 right-5 text-[#6B6B6B] hover:text-[#121212] transition-colors cursor-pointer"
                         >
-                            <FaTimes className="text-xl" />
+                            <FaTimes className="text-lg" />
                         </button>
 
                         {(title || Icon) && (
-                            <div className="text-center mb-6">
+                            <div className="text-center mb-6 flex flex-col items-center">
                                 {Icon && (
-                                    <div className={`inline-flex items-center justify-center w-16 h-16 rounded-full ${iconBgColor} ${iconColor} mb-4 shadow-lg`}>
-                                        <Icon className="text-2xl text-white" />
+                                    <div className={`inline-flex items-center justify-center w-14 h-14 rounded-full ${iconBgColor} ${iconColor} mb-3.5`}>
+                                        <Icon className="text-xl" />
                                     </div>
                                 )}
                                 {title && (
-                                    <h3 className="text-2xl font-bold text-white">{title}</h3>
+                                    <h3 className="text-2xl font-display font-medium text-[#121212] tracking-tight">{title}</h3>
                                 )}
-                                {children.find(child => child.type === 'p') /* Hack to show subtitle if passed as first p tag */}
                             </div>
                         )}
 
-                        {/* Filter out the subtitle p tag if we showed it above, purely logic based on assumption children are passed */}
-                        {/* Alternatively, just render children and let the parent handle the header structure inside children if complex */}
-                        {/* I will keep it simple: render children, but the modal header part from Frontend.html is quite standard so I should support it */}
-                        {/* Actually, looking at Frontend.html, the structure is inconsistent (sometimes icon bg is indigo, sometimes purple, sometimes red). */}
-                        {/* I'll let the specific modal implementations handle the header content inside children to be more flexible, or pass props. */}
-                        {/* Let's revert to a simpler Container usage where I pass the header elements as props or children. */}
                         {children}
                     </motion.div>
                 </div>

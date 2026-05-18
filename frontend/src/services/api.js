@@ -11,9 +11,10 @@ api.interceptors.request.use(
     (config) => {
         const userData = localStorage.getItem('safetyGuardianUser');
         if (userData) {
-            const { access_token } = JSON.parse(userData);
-            if (access_token) {
-                config.headers.Authorization = `Bearer ${access_token}`;
+            const parsed = JSON.parse(userData);
+            const token = parsed.token || parsed.access_token;
+            if (token) {
+                config.headers.Authorization = `Bearer ${token}`;
             }
         }
         return config;
@@ -42,7 +43,13 @@ export const loginUser = async (email, password) => {
         // unless we decoded the token or fetched profile.
         // Let's assume we need to fetch profile after login.
 
-        return { success: true, ...response.data, email: email };
+        return { 
+            success: true, 
+            ...response.data, 
+            email: response.data.email || email,
+            name: response.data.name || 'User',
+            user_id: response.data.user_id
+        };
     } catch (error) {
         throw error.response ? error.response.data : error;
     }
@@ -61,8 +68,8 @@ export const saveContacts = async (data) => {
     try {
         const response = await api.post('/emergency', {
             contacts: [
-                { name: data.primaryName, phone: data.primaryPhone, email: data.primaryEmail, is_primary: true },
-                ...(data.secondaryName ? [{ name: data.secondaryName, phone: data.secondaryPhone, email: data.secondaryEmail, is_primary: false }] : [])
+                { name: data.primaryName, phone: data.primaryPhone || null, email: data.primaryEmail || null, is_primary: true },
+                ...(data.secondaryName ? [{ name: data.secondaryName, phone: data.secondaryPhone || null, email: data.secondaryEmail || null, is_primary: false }] : [])
             ]
         });
         return response.data;
@@ -78,8 +85,8 @@ export const getUserContacts = async (userId) => {
         // Frontend expects: { success, contacts: { primaryName... } }
         // We need to map it.
         const contacts = response.data.contacts || [];
-        const primary = contacts.find(c => c.is_primary) || {};
-        const secondary = contacts.find(c => !c.is_primary) || {};
+        const primary = contacts.find(c => c.is_primary === true || c.is_primary === 'true') || {};
+        const secondary = contacts.find(c => c.is_primary === false || c.is_primary === 'false' || !c.is_primary) || {};
 
         return {
             success: true,
@@ -103,8 +110,15 @@ export const createAlert = async (data) => {
         const formData = new FormData();
         formData.append('location', JSON.stringify(data.location || {}));
         formData.append('risk_level', data.risk_level);
-        // We don't have video/audio for panic button yet, so we won't append them
-        // Backend MUST be updated to allow optional video/audio
+        
+        if (data.videoBlob) {
+            const ext = data.videoBlob.type.includes('mp4') ? 'mp4' : 'webm';
+            formData.append('video', data.videoBlob, `video.${ext}`);
+        }
+        if (data.audioBlob) {
+            const ext = data.audioBlob.type.includes('mp4') ? 'mp4' : 'webm';
+            formData.append('audio', data.audioBlob, `audio.${ext}`);
+        }
 
         const response = await api.post('/alerts', formData, {
             headers: {

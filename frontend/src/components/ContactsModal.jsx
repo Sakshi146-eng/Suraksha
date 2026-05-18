@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { FaAddressBook, FaSave } from 'react-icons/fa';
+import { FaAddressBook, FaSave, FaCheckCircle } from 'react-icons/fa';
 import Modal from './Modal';
-import Button from './Button';
 import { useAuth } from '../context/AuthContext';
 import { saveContacts, getUserContacts } from '../services/api';
 
@@ -55,8 +54,11 @@ const ContactsModal = ({ isOpen, onClose }) => {
             });
 
             if (data.success) {
-                setMessage({ text: 'Emergency contacts saved successfully!', type: 'success' });
-                setTimeout(() => onClose(), 2000);
+                setMessage({ text: 'Contacts saved successfully.', type: 'success' });
+                setTimeout(() => {
+                    onClose();
+                    setMessage({ text: '', type: '' });
+                }, 2000);
             } else {
                 setMessage({ text: data.message || 'Failed to save contacts', type: 'error' });
             }
@@ -73,90 +75,140 @@ const ContactsModal = ({ isOpen, onClose }) => {
             onClose={onClose}
             icon={FaAddressBook}
             title="Emergency Contacts"
-            iconBgColor="bg-indigo-600"
+            iconColor="text-[#DB2956]"
+            iconBgColor="bg-[#FFE4EC]"
+            borderClass="border-t-4 border-[#DB2956]"
         >
-            <p className="text-purple-200 text-center mb-6">Who should we contact in an emergency?</p>
+            <p className="text-center font-sans text-sm text-[#6B6B6B] mb-6">
+                Establish primary recipient links for emergency broadcasts
+            </p>
 
             <form onSubmit={handleSubmit}>
                 {message.text && (
-                    <div className={`p-3 rounded-lg mb-4 text-center ${message.type === 'error' ? 'text-red-400 bg-red-900/30' : 'text-green-400 bg-green-900/30'}`}>
-                        {message.text}
+                    <div className={`p-4 rounded-[10px] mb-6 flex items-center justify-center space-x-2 border ${
+                        message.type === 'error' 
+                            ? 'text-[#DB2956] bg-[#FFE4EC] border-[#DB2956]/20' 
+                            : 'text-[#DB2956] bg-[#FFE4EC] border-[#DB2956]/20'
+                    }`}>
+                        {message.type === 'success' && <FaCheckCircle className="text-[#DB2956] text-base" />}
+                        <span className="font-sans text-sm font-regular">{message.text}</span>
                     </div>
                 )}
 
-                <div className="border-b border-white/10 pb-6 mb-6">
-                    <h4 className="text-lg font-bold text-white mb-4">Primary Contact</h4>
-                    <div className="mb-4">
-                        <label className="block text-purple-200 mb-2">Name</label>
-                        <input
-                            type="text"
-                            value={primaryName}
-                            onChange={(e) => setPrimaryName(e.target.value)}
-                            className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-                            required
-                        />
+                {/* Section 1: Primary Contact */}
+                <div className="border-b border-[#E8E8E8] pb-6 mb-6">
+                    <div className="flex items-center mb-4">
+                        <span className="font-display font-medium text-xs text-[#DB2956] tracking-wider uppercase">
+                            Primary Contact <span className="text-[#DB2956]">*</span>
+                        </span>
                     </div>
-                    <div className="mb-4">
-                        <label className="block text-purple-200 mb-2">Phone</label>
-                        <input
-                            type="tel"
-                            value={primaryPhone}
-                            onChange={(e) => setPrimaryPhone(e.target.value)}
-                            className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-                            required
-                        />
-                    </div>
-                    <div className="mb-4">
-                        <label className="block text-purple-200 mb-2">Email</label>
-                        <input
-                            type="email"
-                            value={primaryEmail}
-                            onChange={(e) => setPrimaryEmail(e.target.value)}
-                            className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-                            required
-                        />
-                    </div>
-                </div>
-
-                <div>
-                    <h4 className="text-lg font-bold text-white mb-4">Secondary Contact (Optional)</h4>
-                    <div className="mb-4">
-                        <label className="block text-purple-200 mb-2">Name</label>
-                        <input
-                            type="text"
-                            value={secondaryName}
-                            onChange={(e) => setSecondaryName(e.target.value)}
-                            className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        />
-                    </div>
-                    <div className="mb-4">
-                        <label className="block text-purple-200 mb-2">Phone</label>
-                        <input
-                            type="tel"
-                            value={secondaryPhone}
-                            onChange={(e) => setSecondaryPhone(e.target.value)}
-                            className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        />
-                    </div>
-                    <div className="mb-6">
-                        <label className="block text-purple-200 mb-2">Email</label>
-                        <input
-                            type="email"
-                            value={secondaryEmail}
-                            onChange={(e) => setSecondaryEmail(e.target.value)}
-                            className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-                        />
+                    
+                    <div className="grid grid-cols-1 gap-4">
+                        <div>
+                            <label className="block font-display font-medium text-[11px] text-[#121212] mb-1.5 uppercase tracking-wider">
+                                Name
+                            </label>
+                            <input
+                                type="text"
+                                value={primaryName}
+                                onChange={(e) => setPrimaryName(e.target.value)}
+                                className="w-full bg-white border-[1.5px] border-[#E8E8E8] focus:border-[#DB2956] rounded-[10px] px-4 py-2.5 text-[#121212] placeholder-[#9CA3AF] focus:outline-none transition-colors font-sans text-base"
+                                placeholder="Contact full name"
+                                required
+                            />
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block font-display font-medium text-[11px] text-[#121212] mb-1.5 uppercase tracking-wider">
+                                    Phone
+                                </label>
+                                <input
+                                    type="tel"
+                                    value={primaryPhone}
+                                    onChange={(e) => setPrimaryPhone(e.target.value)}
+                                    className="w-full bg-white border-[1.5px] border-[#E8E8E8] focus:border-[#DB2956] rounded-[10px] px-4 py-2.5 text-[#121212] placeholder-[#9CA3AF] focus:outline-none transition-colors font-sans text-base"
+                                    placeholder="+1234567890"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block font-display font-medium text-[11px] text-[#121212] mb-1.5 uppercase tracking-wider">
+                                    Email
+                                </label>
+                                <input
+                                    type="email"
+                                    value={primaryEmail}
+                                    onChange={(e) => setPrimaryEmail(e.target.value)}
+                                    className="w-full bg-white border-[1.5px] border-[#E8E8E8] focus:border-[#DB2956] rounded-[10px] px-4 py-2.5 text-[#121212] placeholder-[#9CA3AF] focus:outline-none transition-colors font-sans text-base"
+                                    placeholder="contact@domain.com"
+                                    required
+                                />
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <Button
+                {/* Section 2: Secondary Contact */}
+                <div className="mb-8">
+                    <div className="flex items-center space-x-2 mb-4">
+                        <span className="font-display font-medium text-xs text-[#6B6B6B] tracking-wider uppercase">
+                            Secondary Contact
+                        </span>
+                        <span className="bg-[#FAFAFA] border border-[#E8E8E8] text-[#6B6B6B] px-2 py-0.5 rounded-full text-[9px] uppercase tracking-wider font-sans">
+                            Optional
+                        </span>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 gap-4">
+                        <div>
+                            <label className="block font-display font-medium text-[11px] text-[#121212] mb-1.5 uppercase tracking-wider">
+                                Name
+                            </label>
+                            <input
+                                type="text"
+                                value={secondaryName}
+                                onChange={(e) => setSecondaryName(e.target.value)}
+                                className="w-full bg-white border-[1.5px] border-[#E8E8E8] focus:border-[#DB2956] rounded-[10px] px-4 py-2.5 text-[#121212] placeholder-[#9CA3AF] focus:outline-none transition-colors font-sans text-base"
+                                placeholder="Contact full name"
+                            />
+                        </div>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label className="block font-display font-medium text-[11px] text-[#121212] mb-1.5 uppercase tracking-wider">
+                                    Phone
+                                </label>
+                                <input
+                                    type="tel"
+                                    value={secondaryPhone}
+                                    onChange={(e) => setSecondaryPhone(e.target.value)}
+                                    className="w-full bg-white border-[1.5px] border-[#E8E8E8] focus:border-[#DB2956] rounded-[10px] px-4 py-2.5 text-[#121212] placeholder-[#9CA3AF] focus:outline-none transition-colors font-sans text-base"
+                                    placeholder="+1234567890"
+                                />
+                            </div>
+                            <div>
+                                <label className="block font-display font-medium text-[11px] text-[#121212] mb-1.5 uppercase tracking-wider">
+                                    Email
+                                </label>
+                                <input
+                                    type="email"
+                                    value={secondaryEmail}
+                                    onChange={(e) => setSecondaryEmail(e.target.value)}
+                                    className="w-full bg-white border-[1.5px] border-[#E8E8E8] focus:border-[#DB2956] rounded-[10px] px-4 py-2.5 text-[#121212] placeholder-[#9CA3AF] focus:outline-none transition-colors font-sans text-base"
+                                    placeholder="contact@domain.com"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button
                     type="submit"
-                    className="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600"
+                    className="w-full py-3.5 bg-[#DB2956] hover:bg-[#c11f46] text-white font-display font-medium uppercase tracking-widest text-xs rounded-[10px] transition-all cursor-pointer flex items-center justify-center border-none shadow-[0_2px_16px_rgba(219,41,86,0.08)]"
                     disabled={loading}
                 >
-                    <FaSave className="mr-2" />
-                    {loading ? 'Saving...' : 'Save Contacts'}
-                </Button>
+                    <FaSave className="mr-2 text-xs" />
+                    {loading ? 'STORING TELEMETRY...' : 'STORE RECIPIENT DATA'}
+                </button>
             </form>
         </Modal>
     );

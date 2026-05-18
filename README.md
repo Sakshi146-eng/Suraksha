@@ -13,12 +13,9 @@ Suraksha is a personal safety application designed to help users feel secure by 
 - **Responsive Design**: Works seamlessly on both mobile and desktop devices
 
 ## Technology Stack
-- **Frontend**: HTML, CSS (Tailwind CSS), JavaScript (jQuery)
-- **UI Components**: Font Awesome for icons
-- **Styling**: Modern glass-morphism UI with gradient accents
-- **Notifications**: Custom toast notifications
-- **Location Services**: Browser Geolocation API
-- **Data Storage**: Local storage for user session management
+- **Frontend**: React (v19), Vite, Tailwind CSS, Framer Motion (for smooth micro-animations & premium glassmorphism), Axios, React Icons, React Router DOM
+- **Backend**: FastAPI (Python), Uvicorn (ASGI web server), Pymongo (MongoDB driver), python-dotenv, PyJWT (Token-based authentication), Twilio (SMS-based safety alerts), Passlib (Bcrypt hashing)
+- **Database**: MongoDB Atlas
 
 ## Screenshots
 <img width="1449" alt="S1" src="https://github.com/user-attachments/assets/2278b162-1174-4b15-bf29-cee6a79f56cf" />
@@ -28,22 +25,88 @@ Suraksha is a personal safety application designed to help users feel secure by 
 <img width="1440" alt="S4" src="https://github.com/user-attachments/assets/c05093a8-c5cb-423e-bf80-6d922fb806e3" />
 <img width="1030" alt="S5" src="https://github.com/user-attachments/assets/97a4af4a-7006-4ff4-9166-a3a72de805c3" />
 
-## Installation
+## Getting Started
 
 ### Prerequisites
-- Web server environment (Apache, Nginx, etc.)
-- Backend API server (separate repository)
+- **Node.js** (v18+ recommended)
+- **Python** (v3.8+ recommended)
+- **MongoDB** (Atlas connection URI or local community server)
 
-### Setup
-1. Clone the repository:
-```bash
-git clone [https://github.com/Srishyl/Suraksha-The-Safety-Guardian]
-cd suraksha-safety-app
-```
+---
 
-2. Open `index.html` in your browser or deploy to a web server.
+### 1. Backend Setup (`core/` directory)
 
-3. Configure the backend API endpoints in the AJAX calls if necessary.
+The backend is built with FastAPI. It handles API requests, user auth, safety alerts, and database interactions.
+
+1. **Navigate to the core directory**:
+   ```bash
+   cd core
+   ```
+
+2. **Create and activate a virtual environment**:
+   - **macOS/Linux**:
+     ```bash
+     python3 -m venv venv
+     source venv/bin/activate
+     ```
+   - **Windows**:
+     ```bash
+     python -m venv venv
+     venv\Scripts\activate
+     ```
+
+3. **Install the required packages**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Configure your environment variables**:
+   Create a `.env` file in the `core/` directory (you can copy `.env.example` if available, or create it from scratch) and populate:
+   ```env
+   ENV_STATE=dev
+   
+   DEV_MONGO_URI=your_mongodb_connection_uri
+   DEV_DB_NAME=safety_guardian
+   
+   DEV_EMAIL_SENDER=your_gmail_sender@gmail.com
+   DEV_EMAIL_PASSWORD=your_gmail_app_password
+   
+   DEV_TWILIO_ACCOUNT_SID=your_twilio_sid
+   DEV_TWILIO_AUTH_TOKEN=your_twilio_token
+   DEV_TWILIO_PHONE_NUMBER=your_twilio_phone_number
+   
+   DEV_JWT_SECRET_KEY=your_jwt_secret_key
+   DEV_ACCESS_TOKEN_EXPIRE_MINUTES=60
+   ```
+
+5. **Start the FastAPI server**:
+   ```bash
+   uvicorn main:app --reload
+   ```
+   The backend server will run at `http://localhost:8000`.
+
+---
+
+### 2. Frontend Setup (`frontend/` directory)
+
+The frontend is a modern React application built with Vite and Tailwind CSS. It is configured to automatically proxy API requests to the backend server.
+
+1. **Navigate to the frontend directory**:
+   ```bash
+   cd frontend
+   ```
+
+2. **Install the dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **Start the development server**:
+   ```bash
+   npm run dev
+   ```
+   The frontend will run at `http://localhost:5173`. Open this URL in your web browser to use the application!
+
 
 ## Usage
 
