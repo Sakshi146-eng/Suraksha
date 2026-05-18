@@ -112,10 +112,12 @@ export const createAlert = async (data) => {
         formData.append('risk_level', data.risk_level);
         
         if (data.videoBlob) {
-            formData.append('video', data.videoBlob, 'video.webm');
+            const ext = data.videoBlob.type.includes('mp4') ? 'mp4' : 'webm';
+            formData.append('video', data.videoBlob, `video.${ext}`);
         }
         if (data.audioBlob) {
-            formData.append('audio', data.audioBlob, 'audio.webm');
+            const ext = data.audioBlob.type.includes('mp4') ? 'mp4' : 'webm';
+            formData.append('audio', data.audioBlob, `audio.${ext}`);
         }
 
         const response = await api.post('/alerts', formData, {

@@ -28,10 +28,15 @@ def send_email_with_attachment(to_email, subject, body, attachment_path):
     import os
     if attachment_path and os.path.exists(attachment_path):
         mime_type, _ = mimetypes.guess_type(attachment_path)
-        if mime_type:
-            mime_type, mime_subtype = mime_type.split("/")
-        else:
-            mime_type, mime_subtype = "application", "octet-stream"
+        if not mime_type:
+            if attachment_path.lower().endswith(".mp4"):
+                mime_type = "video/mp4"
+            elif attachment_path.lower().endswith(".webm"):
+                mime_type = "video/webm"
+            else:
+                mime_type = "video/mp4"
+
+        mime_type, mime_subtype = mime_type.split("/")
 
         with open(attachment_path, "rb") as f:
             msg.add_attachment(

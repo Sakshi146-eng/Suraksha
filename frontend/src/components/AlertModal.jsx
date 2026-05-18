@@ -88,7 +88,24 @@ const AlertModal = ({ isOpen, onClose, onAlertCreated }) => {
                 setMessage({ text: 'Evidence capture active...', type: 'info' });
                 navigator.mediaDevices.getUserMedia({ video: true, audio: true })
                     .then(stream => {
-                        const mediaRecorder = new MediaRecorder(stream);
+                        let options = {};
+                        let recordedType = 'video/webm';
+                        
+                        if (MediaRecorder.isTypeSupported('video/mp4;codecs=h264')) {
+                            options = { mimeType: 'video/mp4;codecs=h264' };
+                            recordedType = 'video/mp4';
+                        } else if (MediaRecorder.isTypeSupported('video/mp4')) {
+                            options = { mimeType: 'video/mp4' };
+                            recordedType = 'video/mp4';
+                        } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp9')) {
+                            options = { mimeType: 'video/webm;codecs=vp9' };
+                            recordedType = 'video/webm';
+                        } else if (MediaRecorder.isTypeSupported('video/webm')) {
+                            options = { mimeType: 'video/webm' };
+                            recordedType = 'video/webm';
+                        }
+
+                        const mediaRecorder = new MediaRecorder(stream, options);
                         const chunks = [];
 
                         mediaRecorder.ondataavailable = (e) => {
@@ -96,7 +113,7 @@ const AlertModal = ({ isOpen, onClose, onAlertCreated }) => {
                         };
 
                         mediaRecorder.onstop = () => {
-                            const blob = new Blob(chunks, { type: 'video/webm' });
+                            const blob = new Blob(chunks, { type: recordedType });
                             stream.getTracks().forEach(track => track.stop());
                             setIsRecording(false);
                             setMessage({ text: 'Transmitting secure uplink...', type: 'info' });
