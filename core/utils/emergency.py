@@ -94,8 +94,25 @@ def notify_contacts(user_id, contacts, video_path, address, risk_level, location
         # 📞 Call
         if c.get("phone"):
             try:
+                phone_num = c["phone"].strip()
+                # Clean up the phone number (remove dashes, spaces, parentheses)
+                phone_num = phone_num.replace(" ", "").replace("-", "").replace("(", "").replace(")", "")
+                
+                # If the number has a leading '0', strip it
+                if phone_num.startswith("0") and not phone_num.startswith("+"):
+                    phone_num = phone_num[1:]
+                    
+                # If it doesn't start with '+', prepend '+91' (default country code for India)
+                if not phone_num.startswith("+"):
+                    if len(phone_num) == 10:
+                        phone_num = "+91" + phone_num
+                    elif len(phone_num) == 12 and phone_num.startswith("91"):
+                        phone_num = "+" + phone_num
+                    else:
+                        phone_num = "+91" + phone_num
+
                 client.calls.create(
-                    to=c["phone"],
+                    to=phone_num,
                     from_=config.TWILIO_PHONE_NUMBER,
                     twiml=f"""
                     <Response>
@@ -105,8 +122,16 @@ def notify_contacts(user_id, contacts, video_path, address, risk_level, location
                     </Response>
                     """
                 )
+                logger.info(f"✅ Twilio Call successfully initiated to {phone_num} (originally: {c['phone']})")
             except Exception as e:
-                logger.error(f"Call failed for {c['phone']}: {e}")
+                logger.error(f"❌ Twilio Call failed for {c['phone']}: {e}")
+                err_str = str(e).lower()
+                if "20003" in err_str:
+                    logger.error("👉 [DIAGNOSTIC] Twilio Error 20003: Authenticate. This means your DEV_TWILIO_ACCOUNT_SID or DEV_TWILIO_AUTH_TOKEN in core/.env is invalid or expired! Please double check your Twilio Console.")
+                elif "21210" in err_str or "source phone number" in err_str:
+                    logger.error(f"👉 [DIAGNOSTIC] Twilio Error 21210: The phone number configured in DEV_TWILIO_PHONE_NUMBER ({config.TWILIO_PHONE_NUMBER}) does not belong to or is not active on this Twilio account! Please purchase or provision a free phone number in your Twilio Console and update your .env file.")
+                elif "21211" in err_str or "not verified" in err_str:
+                    logger.error("👉 [DIAGNOSTIC] Twilio Trial Account Restriction: The recipient's phone number is not verified in your Twilio Console! Go to 'Verified Caller IDs' in Twilio and add this phone number.")
 
 
 def handle_emergency(
