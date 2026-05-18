@@ -4,7 +4,7 @@ from functools import lru_cache
 
 
 class BaseConfig(BaseSettings):
-    ENV_STATE: Optional[str] = None
+    ENV_STATE: Optional[str] = "prod"
 
     class Config:
         env_file: str = ".env"
