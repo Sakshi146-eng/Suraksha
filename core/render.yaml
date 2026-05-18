@@ -1,57 +1,48 @@
 services:
   - type: web
     name: suraksha-backend
-    runtime: python
+    runtime: docker          # Use the Dockerfile in this folder
     plan: free
+    dockerfilePath: ./Dockerfile   # Path relative to the repo root (or the root dir set in Render)
 
-    buildCommand: |
-      pip install --upgrade pip
-      pip install -r requirements.txt
-
-    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
-
-    # No buildCommand/startCommand — Dockerfile handles everything
-
-    healthCheckPath: /health
+    healthCheckPath: /         # Use GET / since there's no /health route yet
 
     envVars:
       # ── Database ─────────────────────────────────────────────────────────────
-      - key: MONGO_URI
-        sync: false           # Set manually in Render dashboard (use MongoDB URL)
+      # Set these in the Render dashboard WITH the PROD_ prefix (e.g. PROD_MONGO_URI)
+      - key: PROD_MONGO_URI
+        sync: false
 
-      - key: DB_NAME
-        sync: false           # Set manually in Render dashboard (use MongoDB DB name)
+      - key: PROD_DB_NAME
+        sync: false
 
-      # ── Email Config ─────────────────────────────────────────────────────────────
-      - key: EMAIL_SENDER
-        sync: false           # Set manually in Render dashboard 
+      # ── Email Config ──────────────────────────────────────────────────────────
+      - key: PROD_EMAIL_SENDER
+        sync: false
 
-      - key: EMAIL_PASSWORD
-        sync: false           # Set manually in Render dashboard 
+      - key: PROD_EMAIL_PASSWORD
+        sync: false
 
-      - key: TWILIO_ACCOUNT_SID
-        sync: false           # Set manually in Render dashboard 
+      # ── Twilio ────────────────────────────────────────────────────────────────
+      - key: PROD_TWILIO_ACCOUNT_SID
+        sync: false
 
-      - key: TWILIO_AUTH_TOKEN
-        sync: false           # Set manually in Render dashboard 
-      
-      - key: TWILIO_PHONE_NUMBER
-        sync: false           # Set manually in Render dashboard 
+      - key: PROD_TWILIO_AUTH_TOKEN
+        sync: false
 
-      # ── JWT Auth ─────────────────────────────────────────────────────────────
-      - key: JWT_SECRET_KEY
+      - key: PROD_TWILIO_PHONE_NUMBER
+        sync: false
+
+      # ── JWT Auth ──────────────────────────────────────────────────────────────
+      - key: PROD_JWT_SECRET_KEY
         generateValue: true   # Render auto-generates a secure random secret
 
-      - key: JWT_ALGORITHM
+      - key: PROD_JWT_ALGORITHM
         value: HS256
 
-      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+      - key: PROD_ACCESS_TOKEN_EXPIRE_MINUTES
         value: "60"
 
-
-      # ── Runtime ──────────────────────────────────────────────────────────────
-      - key: ENVIRONMENT
-        value: production
-
-      - key: PYTHON_VERSION
-        value: "3.11.0"
+      # ── Runtime ───────────────────────────────────────────────────────────────
+      - key: ENV_STATE
+        value: prod           # Activates ProdConfig (reads PROD_ prefixed vars)
