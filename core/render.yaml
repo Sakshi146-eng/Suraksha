@@ -1,0 +1,54 @@
+services:
+  - type: web
+    name: suraksha-backend
+    runtime: python
+    plan: free
+
+    buildCommand: |
+      pip install --upgrade pip
+      pip install -r requirements.txt
+
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+
+    # No buildCommand/startCommand — Dockerfile handles everything
+
+    healthCheckPath: /health
+
+    envVars:
+      # ── Database ─────────────────────────────────────────────────────────────
+      - key: MONGO_URI
+        sync: false           # Set manually in Render dashboard (use MongoDB URL)
+
+      - key: DB_NAME
+        sync: false           # Set manually in Render dashboard (use MongoDB DB name)
+
+      # ── Email Config ─────────────────────────────────────────────────────────────
+      - key: EMAIL_PASSWORD
+        sync: false           # Set manually in Render dashboard (use Neon / Render Postgres URL)
+
+      - key: TWILIO_ACCOUNT_SID
+        sync: false           # Set manually in Render dashboard (use Neon / Render Postgres URL)
+
+      - key: TWILIO_AUTH_TOKEN
+        sync: false           # Set manually in Render dashboard (use Neon / Render Postgres URL)
+      
+      - key: TWILIO_PHONE_NUMBER
+        sync: false           # Set manually in Render dashboard (use Neon / Render Postgres URL)
+
+      # ── JWT Auth ─────────────────────────────────────────────────────────────
+      - key: JWT_SECRET_KEY
+        generateValue: true   # Render auto-generates a secure random secret
+
+      - key: JWT_ALGORITHM
+        value: HS256
+
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: "60"
+
+
+      # ── Runtime ──────────────────────────────────────────────────────────────
+      - key: ENVIRONMENT
+        value: production
+
+      - key: PYTHON_VERSION
+        value: "3.11.0"
