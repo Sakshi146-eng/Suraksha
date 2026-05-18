@@ -5,8 +5,14 @@ import Button from '../components/Button';
 const LandingPage = ({ onGetStarted }) => {
     return (
         <div className="pt-[64px] min-h-screen bg-[#FAFAFA]">
-            {/* Hero Section */}
-            <section className="py-20 md:py-28 px-6 bg-[#FAFAFA]">
+            {/* Hero Section with Beautiful Generated Background Image */}
+            <section 
+                className="py-20 md:py-28 px-6 bg-cover bg-center bg-no-repeat relative overflow-hidden z-10"
+                style={{ backgroundImage: `url('/landing_bg.png')` }}
+            >
+                {/* Clean soft white gradient overlay for ultimate readability and premium blending */}
+                <div className="absolute inset-0 bg-gradient-to-tr from-white/95 via-white/85 to-[#FFE4EC]/25 backdrop-blur-[3px] -z-10"></div>
+                
                 <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
                     
                     {/* Left Column */}

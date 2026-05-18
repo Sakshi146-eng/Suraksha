@@ -34,11 +34,7 @@ const Navbar = ({ onOpenLogin, onOpenSignup }) => {
 
             <div className="container mx-auto px-6 flex justify-between items-center max-w-5xl relative">
                 <Link to="/" className="flex items-center space-x-2 group">
-                    <img 
-                        src="/logo.png" 
-                        alt="Suraksha Shield Logo" 
-                        className="w-[22px] h-[22px] object-contain group-hover:scale-110 transition-transform duration-300" 
-                    />
+                    <FaShieldAlt className="text-[#DB2956] text-xl group-hover:scale-110 transition-transform duration-300" />
                     <span className="font-display font-medium text-xl text-[#121212] tracking-tight">
                         Suraksha
                     </span>
