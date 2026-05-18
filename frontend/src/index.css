@@ -1,10 +1,16 @@
 @import "tailwindcss";
 
-/* Custom gradients or overrides */
 @theme {
-  --font-sans: "Inter", "system-ui", "sans-serif";
+  --font-sans: "Satoshi", "Inter", "system-ui", "sans-serif";
+  --font-display: "Satoshi", "system-ui", "sans-serif";
+  --color-brand: #DB2956;
+  --color-brand-light: #FFE4EC;
+  --color-dark: #121212;
+  --color-muted: #6B6B6B;
+  --color-border: #E8E8E8;
+  --color-bg: #FAFAFA;
 }
 
 body {
-  @apply bg-gradient-to-br from-indigo-900 to-purple-800 min-h-screen font-sans;
+  @apply bg-[#FAFAFA] text-[#121212] font-sans antialiased min-h-screen;
 }

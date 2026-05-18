@@ -25,16 +25,20 @@ def send_email_with_attachment(to_email, subject, body, attachment_path):
     msg["Subject"] = subject
     msg.set_content(body)
 
-    if attachment_path:
+    import os
+    if attachment_path and os.path.exists(attachment_path):
         mime_type, _ = mimetypes.guess_type(attachment_path)
-        mime_type, mime_subtype = mime_type.split("/")
+        if mime_type:
+            mime_type, mime_subtype = mime_type.split("/")
+        else:
+            mime_type, mime_subtype = "application", "octet-stream"
 
         with open(attachment_path, "rb") as f:
             msg.add_attachment(
                 f.read(),
                 maintype=mime_type,
                 subtype=mime_subtype,
-                filename=attachment_path.split("/")[-1]
+                filename=os.path.basename(attachment_path)
             )
 
     with smtplib.SMTP(config.SMTP_SERVER, config.SMTP_PORT) as server:
@@ -43,19 +47,40 @@ def send_email_with_attachment(to_email, subject, body, attachment_path):
         server.send_message(msg)
 
 
-def notify_contacts(user_id, contacts, video_path, address, risk_level):
+def notify_contacts(user_id, contacts, video_path, address, risk_level, location=None):
     from twilio.rest import Client
 
     client = Client(config.TWILIO_ACCOUNT_SID, config.TWILIO_AUTH_TOKEN)
+
+    # Prepare maps link if coordinates are available
+    maps_link = ""
+    coordinates_str = ""
+    if location and "latitude" in location and "longitude" in location:
+        lat = location["latitude"]
+        lon = location["longitude"]
+        maps_link = f"https://www.google.com/maps?q={lat},{lon}"
+        coordinates_str = f"Latitude: {lat}, Longitude: {lon}"
 
     for c in contacts:
         # 📧 Email
         if c.get("email"):
             try:
+                email_body = f"🚨 SURAKSHA EMERGENCY ALERT 🚨\n\n"
+                email_body += f"Risk Level: {risk_level.upper()}\n"
+                email_body += f"Status: ACTIVE EMERGENCY REPORTED\n\n"
+                email_body += f"The user is in danger!\n\n"
+                email_body += f"📍 Location Details:\n"
+                email_body += f"- Address: {address}\n"
+                if coordinates_str:
+                    email_body += f"- Coordinates: {coordinates_str}\n"
+                if maps_link:
+                    email_body += f"- Google Maps Link: {maps_link}\n"
+                email_body += f"\nPlease take immediate action or contact emergency services."
+
                 send_email_with_attachment(
                     to_email=c["email"],
                     subject=f"🚨 Emergency Alert ({risk_level})",
-                    body=f"User is in danger at {address}",
+                    body=email_body,
                     attachment_path=video_path
                 )
             except Exception as e:
@@ -115,7 +140,8 @@ def handle_emergency(
         contacts,
         video_path,
         address,
-        risk_level
+        risk_level,
+        location
     )
 
     return {

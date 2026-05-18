@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaLock } from 'react-icons/fa';
+import { FaShieldAlt } from 'react-icons/fa';
 import Modal from './Modal';
 import Button from './Button';
 import { useAuth } from '../context/AuthContext';
@@ -35,46 +35,64 @@ const LoginModal = ({ isOpen, onClose, onSwitchToSignup }) => {
         <Modal
             isOpen={isOpen}
             onClose={onClose}
-            icon={FaLock}
-            title="Welcome Back"
-            iconBgColor="bg-indigo-600"
+            icon={FaShieldAlt}
+            title="Welcome back"
+            iconColor="text-[#DB2956]"
+            iconBgColor="bg-[#FFE4EC]"
+            borderClass="border-t-4 border-[#DB2956]"
         >
-            <p className="text-purple-200 text-center mb-6">Sign in to access your Safety Guardian</p>
+            <p className="text-center font-sans text-sm text-[#6B6B6B] mb-6">
+                Sign in to access your Safety Guardian
+            </p>
 
             <form onSubmit={handleSubmit}>
-                {error && <div className="text-red-400 bg-red-900/30 p-3 rounded-lg mb-4 text-center">{error}</div>}
+                {error && (
+                    <div className="text-sm text-[#DB2956] bg-[#FFE4EC] p-3 rounded-[10px] mb-4 text-center font-sans">
+                        {error}
+                    </div>
+                )}
+                
                 <div className="mb-4">
-                    <label className="block text-purple-200 mb-2">Email</label>
+                    <label className="block font-display font-medium text-xs text-[#121212] mb-1.5 uppercase tracking-wider">
+                        Email Address
+                    </label>
                     <input
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        className="w-full bg-white border-[1.5px] border-[#E8E8E8] focus:border-[#DB2956] rounded-[10px] px-4 py-3 text-[#121212] placeholder-[#9CA3AF] focus:outline-none transition-colors font-sans text-base"
+                        placeholder="yourname@domain.com"
                         required
                     />
                 </div>
+                
                 <div className="mb-6">
-                    <label className="block text-purple-200 mb-2">Password</label>
+                    <label className="block font-display font-medium text-xs text-[#121212] mb-1.5 uppercase tracking-wider">
+                        Password
+                    </label>
                     <input
                         type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full bg-white/10 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        className="w-full bg-white border-[1.5px] border-[#E8E8E8] focus:border-[#DB2956] rounded-[10px] px-4 py-3 text-[#121212] placeholder-[#9CA3AF] focus:outline-none transition-colors font-sans text-base"
+                        placeholder="••••••••"
                         required
                     />
                 </div>
+                
                 <Button
                     type="submit"
-                    className="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600"
+                    className="w-full"
                     disabled={loading}
                 >
                     {loading ? 'Logging in...' : 'Login'}
                 </Button>
             </form>
+            
             <div className="text-center mt-6">
-                <p className="text-purple-200">
+                <p className="text-sm font-sans text-[#6B6B6B]">
                     Don't have an account?{' '}
-                    <button onClick={onSwitchToSignup} className="text-purple-400 hover:text-purple-300 font-bold">
+                    <button onClick={onSwitchToSignup} className="text-[#DB2956] hover:underline font-display font-medium cursor-pointer">
                         Sign up
                     </button>
                 </p>

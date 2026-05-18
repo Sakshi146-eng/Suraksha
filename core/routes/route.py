@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, File, Form, UploadFile, BackgroundTasks
+from typing import Optional
 from datetime import datetime
 import uuid
 from database import contacts_collection, alerts_collection
@@ -81,12 +82,19 @@ def get_alerts(
 ):
     user_id = str(current_user["_id"])
 
-    alerts = list(
-        alerts_collection.find(
-            {"user_id": user_id},
-            {"_id": 1, "risk_level": 1, "timestamp": 1}
-        )
-    )
+    alerts_cursor = alerts_collection.find(
+        {"user_id": user_id},
+        {"_id": 1, "risk_level": 1, "timestamp": 1, "location": 1, "address": 1, "actions_taken": 1}
+    ).sort("timestamp", -1)
+
+    alerts = []
+    for doc in alerts_cursor:
+        doc["_id"] = str(doc["_id"])
+        # Backwards compatibility and safety fields
+        loc = doc.get("location") or {}
+        doc["latitude"] = loc.get("latitude", 0)
+        doc["longitude"] = loc.get("longitude", 0)
+        alerts.append(doc)
 
     return {"success": True, "alerts": alerts}
 
@@ -94,37 +102,40 @@ def get_alerts(
 @router.post("/alerts")
 def create_alert(
     background_tasks: BackgroundTasks,
-    video: UploadFile = File(...),
-    audio: UploadFile = File(...),
     location: str = Form(...),
+    risk_level: str = Form(None),
+    video: Optional[UploadFile] = File(None),
+    audio: Optional[UploadFile] = File(None),
     current_user=Depends(get_current_user)
 ):
     user_id = str(current_user["_id"])
 
     os.makedirs(config.UPLOAD_DIR, exist_ok=True)
+    
+    video_path = None
+    if video and video.filename:
+        video_name = f"{uuid.uuid4()}_{video.filename}"
+        video_path = os.path.join(config.UPLOAD_DIR, video_name)
+        with open(video_path, "wb") as f:
+            shutil.copyfileobj(video.file, f)
 
-    # 🎥 Save video
-    video_name = f"{uuid.uuid4()}_{video.filename}"
-    video_path = os.path.join(config.UPLOAD_DIR, video_name)
-    with open(video_path, "wb") as f:
-        shutil.copyfileobj(video.file, f)
+    audio_path = None
+    if audio and audio.filename:
+        audio_name = f"{uuid.uuid4()}_{audio.filename}"
+        audio_path = os.path.join(config.UPLOAD_DIR, audio_name)
+        with open(audio_path, "wb") as f:
+            shutil.copyfileobj(audio.file, f)
 
-    # 🎙 Save audio
-    audio_name = f"{uuid.uuid4()}_{audio.filename}"
-    audio_path = os.path.join(config.UPLOAD_DIR, audio_name)
-    with open(audio_path, "wb") as f:
-        shutil.copyfileobj(audio.file, f)
-
-    # 📍 Parse location
     try:
         location_data = json.loads(location)
     except Exception:
         raise HTTPException(status_code=400, detail="Invalid location format")
 
-    # ⚠️ Calculate risk
-    final_risk = calculate_final_risk(audio_path)
+    final_risk = risk_level or "risk"
+    if audio_path:
+        # Calculate risk based on audio if provided
+        final_risk = calculate_final_risk(audio_path)
 
-    # 🚨 Handle emergency
     result = handle_emergency(
         user_id=user_id,
         risk_level=final_risk,
@@ -134,7 +145,7 @@ def create_alert(
         background_tasks=background_tasks
     )
 
-    if not result["success"]:
-        raise HTTPException(status_code=400, detail=result["message"])
+    if not result.get("success"):
+        raise HTTPException(status_code=400, detail=result.get("message", "Failed to send alert"))
 
     return result

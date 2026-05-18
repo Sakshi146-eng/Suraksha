@@ -42,7 +42,13 @@ export const loginUser = async (email, password) => {
         // unless we decoded the token or fetched profile.
         // Let's assume we need to fetch profile after login.
 
-        return { success: true, ...response.data, email: email };
+        return { 
+            success: true, 
+            ...response.data, 
+            email: response.data.email || email,
+            name: response.data.name || 'User',
+            user_id: response.data.user_id
+        };
     } catch (error) {
         throw error.response ? error.response.data : error;
     }
@@ -61,8 +67,8 @@ export const saveContacts = async (data) => {
     try {
         const response = await api.post('/emergency', {
             contacts: [
-                { name: data.primaryName, phone: data.primaryPhone, email: data.primaryEmail, is_primary: true },
-                ...(data.secondaryName ? [{ name: data.secondaryName, phone: data.secondaryPhone, email: data.secondaryEmail, is_primary: false }] : [])
+                { name: data.primaryName, phone: data.primaryPhone || null, email: data.primaryEmail || null, is_primary: true },
+                ...(data.secondaryName ? [{ name: data.secondaryName, phone: data.secondaryPhone || null, email: data.secondaryEmail || null, is_primary: false }] : [])
             ]
         });
         return response.data;
@@ -103,8 +109,13 @@ export const createAlert = async (data) => {
         const formData = new FormData();
         formData.append('location', JSON.stringify(data.location || {}));
         formData.append('risk_level', data.risk_level);
-        // We don't have video/audio for panic button yet, so we won't append them
-        // Backend MUST be updated to allow optional video/audio
+        
+        if (data.videoBlob) {
+            formData.append('video', data.videoBlob, 'video.webm');
+        }
+        if (data.audioBlob) {
+            formData.append('audio', data.audioBlob, 'audio.webm');
+        }
 
         const response = await api.post('/alerts', formData, {
             headers: {
