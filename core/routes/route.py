@@ -22,38 +22,17 @@ def add_emergency_contacts(
 ):
     user_id = str(current_user["_id"])
 
+    # Clear existing contacts to prevent any duplicate/stale database pollution
+    contacts_collection.delete_many({"user_id": user_id})
+
+    # Insert the new configured contacts cleanly
     for contact in payload.contacts:
         data = contact.model_dump(exclude_unset=True)
-
-        # Identify contact uniquely (phone OR email)
-        query = {
+        contacts_collection.insert_one({
+            "_id": str(uuid.uuid4()),
             "user_id": user_id,
-            "$or": [
-                {"phone": data.get("phone")},
-                {"email": data.get("email")}
-            ]
-        }
-
-        existing = contacts_collection.find_one(query)
-
-        # Enforce only one primary contact
-        if data.get("is_primary"):
-            contacts_collection.update_many(
-                {"user_id": user_id},
-                {"$set": {"is_primary": False}}
-            )
-
-        if existing:
-            contacts_collection.update_one(
-                {"_id": existing["_id"]},
-                {"$set": data}
-            )
-        else:
-            contacts_collection.insert_one({
-                "_id": str(uuid.uuid4()),
-                "user_id": user_id,
-                **data
-            })
+            **data
+        })
 
     return {"success": True}
 

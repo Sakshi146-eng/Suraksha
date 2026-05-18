@@ -11,9 +11,10 @@ api.interceptors.request.use(
     (config) => {
         const userData = localStorage.getItem('safetyGuardianUser');
         if (userData) {
-            const { access_token } = JSON.parse(userData);
-            if (access_token) {
-                config.headers.Authorization = `Bearer ${access_token}`;
+            const parsed = JSON.parse(userData);
+            const token = parsed.token || parsed.access_token;
+            if (token) {
+                config.headers.Authorization = `Bearer ${token}`;
             }
         }
         return config;
@@ -84,8 +85,8 @@ export const getUserContacts = async (userId) => {
         // Frontend expects: { success, contacts: { primaryName... } }
         // We need to map it.
         const contacts = response.data.contacts || [];
-        const primary = contacts.find(c => c.is_primary) || {};
-        const secondary = contacts.find(c => !c.is_primary) || {};
+        const primary = contacts.find(c => c.is_primary === true || c.is_primary === 'true') || {};
+        const secondary = contacts.find(c => c.is_primary === false || c.is_primary === 'false' || !c.is_primary) || {};
 
         return {
             success: true,

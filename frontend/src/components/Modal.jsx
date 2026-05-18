@@ -29,7 +29,7 @@ const Modal = ({ isOpen, onClose, children, title, icon: Icon, iconColor = 'text
                         animate={{ scale: 1, opacity: 1, y: 0 }}
                         exit={{ scale: 0.95, opacity: 0, y: 10 }}
                         transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-                        className={`bg-white rounded-[20px] w-full max-w-md p-8 relative max-h-[90vh] overflow-y-auto z-10 shadow-[0_4px_32px_rgba(18,18,18,0.08)] ${borderClass}`}
+                        className={`bg-white rounded-[20px] w-full max-w-md p-6 sm:p-8 relative max-h-[90vh] overflow-y-auto z-10 shadow-[0_4px_32px_rgba(18,18,18,0.08)] ${borderClass}`}
                     >
                         <button
                             onClick={onClose}
