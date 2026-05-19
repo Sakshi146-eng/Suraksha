@@ -171,3 +171,6 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## Contact
 Project Link: [https://github.com/Sakshi146-eng/Suraksha](https://github.com/Sakshi146-eng/Suraksha)
 
+## Live API 
+[https://suraksha-safety.vercel.app/](https://suraksha-safety.vercel.app/)
+
