@@ -3,6 +3,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from routes.user import router as user_router
 from routes.route import router as main_router
 from config import config
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s"
+)
 
 app = FastAPI(title=config.APP_NAME)
 
